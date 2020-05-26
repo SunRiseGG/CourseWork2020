@@ -1,0 +1,23 @@
+{
+  "name": "coursework2020",
+  "version": "1.0.0",
+  "description": "Mail User Agent",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SunRiseGG/CourseWork2020.git"
+  },
+  "author": "SunRiseGG",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SunRiseGG/CourseWork2020/issues"
+  },
+  "homepage": "https://github.com/SunRiseGG/CourseWork2020#readme",
+  "dependencies": {
+    "inquirer": "^7.1.0",
+    "nodemailer": "^6.4.6"
+  }
+}
