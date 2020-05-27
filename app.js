@@ -2,40 +2,59 @@
 
 let nodemailer = require('nodemailer');
 let inquirer = require('inquirer');
-
-let mailOptions = {
-  from: 'SunRiseGC4@gmail.com',
-  to: 'kotenkobogdan13@gmail.com',
-  subject: 'Test',
-  text: 'IDI NAXYI'
-};
-
-
-let transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  secure: false,
-  auth: {
-    user: 'SunRiseGC4@gmail.com',
-    pass: 'viper2018'
-  }
-})
-
+let mailer = require('./Mailer');
+mailer = new mailer();
 inquirer
-.prompt([{
-  type: "input",
-  name: "command",
-  message: "Command:"
+.prompt([
+  {
+    type: "input",
+    name: "userName",
+    message: "Email:"
+  },
+  {
+    type: "password",
+    name: "userPass",
+    mask: "*",
+    message: "Password:"
+  },
+  {
+    type: "input",
+    name: "command",
+    message: "Command:"
+  },
+  {
+    type: "input",
+    name: "from",
+    message: "From:"
+  },
+  {
+    type: "input",
+    name: "to",
+    message: "To:"
+  },
+  {
+    type: "input",
+    name: "subject",
+    message: "Subject:"
+  },
+  {
+    type: "input",
+    name: "text",
+    message: "Text:"
+  },
+  {
+    type: "confirm",
+    name: "confirm",
+    message: "Send:"
 }])
 .then(answers => {
-  if(answers.command === 'send') {
-    transporter.sendMail(mailOptions, (err, info) => {
-      if(err) {
-        console.log(err);
-      } else {
-        console.log(info.response);
-      }
-      process.exit();
-    })
+  mailer.createTransport(answers.userName, answers.userPass);
+  if(answers.command === 'writeMail') {
+    mailer.createMail(answers.from, answers.to, answers.subject, answers.text);
+  }
+  if(answers.confirm === true) {
+    console.log(mailer);
+    mailer.sendMail();
   } else {
     console.log("TI SHO EBANYTI?");
   }
