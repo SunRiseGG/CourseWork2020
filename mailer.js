@@ -13,8 +13,16 @@ Mailer.prototype.createTransport = function(user, pass) {
   })
 }
 
-Mailer.prototype.createMail = function(from, to, subject, text) {
-  this.mail = {from, to, subject, text};
+Mailer.prototype.createMail = function(from, to, subject, text, attachment = "") {
+  this.mail = {
+    from,
+    to,
+    subject,
+    text,
+    attachments: attachment ? [
+      { filename: attachment.split('\\').pop(), path: attachment }
+    ] : undefined
+  };
 }
 Mailer.prototype.sendMail = function() {
   this.transport.sendMail(this.mail, (err, info) => {

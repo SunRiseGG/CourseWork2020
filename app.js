@@ -2,6 +2,7 @@
 
 let nodemailer = require('nodemailer');
 let inquirer = require('inquirer');
+const {google} = require('googleapis');
 let mailer = require('./Mailer');
 mailer = new mailer();
 
@@ -79,13 +80,20 @@ let writeMail = function() {
       type: "input",
       name: "text",
       message: "Text:"
-  }])
+    },
+    {
+      type: "input",
+      name: "attachmentPath",
+      message: "Attachment Path:"
+    },
+  ])
   .then(answers => {
     if(answers.to === '') {
       console.log("Please enter the recipient\'s email.");
       writeMail();
     } else {
-      mailer.createMail(answers.from, answers.to, answers.subject, answers.text);
+      console.log(answers.attachmentPath);
+      mailer.createMail(answers.from, answers.to, answers.subject, answers.text, answers.attachmentPath);
       confirmation();
     }
   })
