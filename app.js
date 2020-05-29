@@ -3,7 +3,7 @@
 let nodemailer = require('nodemailer');
 let inquirer = require('inquirer');
 const {google} = require('googleapis');
-let mailer = require('./Mailer');
+let mailer = require('./mailer.js');
 mailer = new mailer();
 
 let login = function() {
@@ -12,22 +12,31 @@ let login = function() {
     {
       type: "input",
       name: "userName",
-      message: "Email:"
+      message: "Email:",
+      validate: checkEmail
     },
     {
       type: "password",
       name: "userPass",
       mask: "*",
-      message: "Password:"
+      message: "Password:",
+      validate: checkPass
+    },
+    {
+      type: "rawlist",
+      name: "smtp",
+      message: "Choose your service:",
+      choices: [
+        "smtp.gmail.com",
+        "smtp.live.com",
+        "smtp.office365.com",
+        "smtp.mail.yahoo.com",
+        "smtp.comcast.com"
+      ]
   }])
   .then(answers => {
-    if(answers.userName === '' || answers.userPass === '') {
-      console.log("Please fill in your email adress and password.");
-      login();
-    } else {
-      mailer.createTransport(answers.userName, answers.userPass);
-      chooseCommand();
-    }
+    mailer.createTransport(answers.userName, answers.userPass, answers.smtp);
+    chooseCommand();
   })
   .catch(error => {
     console.log("TI SHO EBANYTI?");
@@ -39,23 +48,27 @@ let chooseCommand = function() {
   inquirer
   .prompt([
     {
-      type: "expand",
+      type: "rawlist",
       name: "command",
       message: "Command:",
       choices: [
         {
-          key: 'w',
           name: 'Compose a letter',
           value: 'writeMail'
+        },
+        {
+          name: 'View mail',
+          value: 'viewMail'
+        },
+        {
+          name: 'Change user',
+          value: 'logout'
       }]
   }])
   .then(answers => {
-    if(answers.command === 'writeMail') {
-      writeMail();
-    } else {
-      console.log("Choose a valid command.");
-      chooseCommand();
-    }
+    answers.command === 'writeMail' ? writeMail() :
+      answers.command === 'logout' ? login() : chooseCommand();
+
   })
   .catch(error => {
     console.log("TI SHO EBANYTI?");
@@ -69,7 +82,8 @@ let writeMail = function() {
     {
       type: "input",
       name: "to",
-      message: "To:"
+      message: "To:",
+      validate: checkEmail
     },
     {
       type: "input",
@@ -88,14 +102,22 @@ let writeMail = function() {
     },
   ])
   .then(answers => {
-    if(answers.to === '') {
-      console.log("Please enter the recipient\'s email.");
-      writeMail();
-    } else {
-      console.log(answers.attachmentPath);
-      mailer.createMail(answers.from, answers.to, answers.subject, answers.text, answers.attachmentPath);
-      confirmation();
-    }
+    console.log(answers.attachmentPath);
+    mailer.createMail(answers.from, answers.to, answers.subject, answers.text, answers.attachmentPath);
+    inquirer
+    .prompt([
+      {
+        type: "confirm",
+        name: "confirm",
+        message: "Send?"
+    }])
+    .then(answers => {
+      answers.confirm === true ? mailer.sendMail() : chooseCommand();
+    })
+    .catch(error => {
+      console.log("TI SHO EBANYTI?");
+      console.log(error);
+    })
   })
   .catch(error => {
     console.log("TI SHO EBANYTI?");
@@ -103,21 +125,15 @@ let writeMail = function() {
   })
 }
 
-let confirmation = function() {
-  inquirer
-  .prompt([
-    {
-      type: "confirm",
-      name: "confirm",
-      message: "Send?"
-  }])
-  .then(answers => {
-    answers.confirm === true ? mailer.sendMail() : chooseCommand();
-  })
-  .catch(error => {
-    console.log("TI SHO EBANYTI?");
-    console.log(error);
-  })
+let checkEmail = function(userName) {
+  const dummy = /\S+@\S+\.\S+/;
+  let check = dummy.test(userName) ? true : "Please enter a valid email adress.";
+  return check;
+}
+
+let checkPass = function(userPass) {
+  let check = userPass.length >= 8 ? true : "Password should be at least 8 symbols.";
+  return check;
 }
 
 login();

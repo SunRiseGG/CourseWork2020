@@ -5,9 +5,9 @@ let inquirer = require('inquirer');
 
 function Mailer(){}
 
-Mailer.prototype.createTransport = function(user, pass) {
+Mailer.prototype.createTransport = function(user, pass, smtp) {
   this.transport =  nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: smtp,
     secure: false,
     auth: {user, pass}
   })
