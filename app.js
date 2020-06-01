@@ -4,142 +4,83 @@ let nodemailer = require('nodemailer');
 let inquirer = require('inquirer');
 let mailer = require('./mailer.js');
 let reader = require('./reader.js');
+let utils = require('./utils.js');
 mailer = new mailer();
 reader = new reader();
-
+utils = new utils();
 
 let login = function() {
   inquirer
   .prompt([
-    {
-      type: "input",
-      name: "userName",
-      message: "Email:",
-      validate: checkEmail
-    },
-    {
-      type: "password",
-      name: "userPass",
-      mask: "*",
-      message: "Password:",
-      validate: checkPass
-    },
-    {
-      type: "rawlist",
-      name: "smtp",
-      message: "Choose your service:",
-      choices: [
-        "smtp.gmail.com",
-        "smtp.live.com",
-        "smtp.office365.com",
-        "smtp.mail.yahoo.com",
-        "smtp.comcast.com"
-      ]
-  }])
+    utils.createInput("userName", "Email:", utils.checkEmail),
+    utils.createPassword("userPass", "*", "Password:", utils.checkPass),
+    utils.createList("service", "Choose your service:", [
+      "smtp.gmail.com",
+      "smtp.live.com",
+      "smtp.office365.com",
+      "smtp.mail.yahoo.com",
+      "smtp.comcast.com"
+    ])
+  ])
   .then(answers => {
-    mailer.createTransport(answers.userName, answers.userPass, answers.smtp);
-    chooseCommand();
+    mailer.createTransport(answers.userName, answers.userPass, answers.service);
+    chooseCommand(answers.service !== "smtp.gmail.com" ? true : false);
   })
   .catch(error => {
-    console.log("TI SHO EBANYTI?");
     console.log(error);
   })
 }
 
-let chooseCommand = function() {
+let chooseCommand = function(service) {
+  let choices = [];
+  utils.addChoice(choices, "Compose a letter", "writeMail");
+  utils.addChoice(choices, "View mail", "viewMail", service);
+  utils.addChoice(choices, "Change user", "logout");
   inquirer
   .prompt([
-    {
-      type: "list",
-      name: "command",
-      message: "Command:",
-      choices: [
-        {
-          name: 'Compose a letter',
-          value: 'writeMail'
-        },
-        {
-          name: 'View mail',
-          value: 'viewMail'
-        },
-        {
-          name: 'Change user',
-          value: 'logout'
-      }]
-  }])
+    utils.createList("command", "Command:", choices)
+  ])
   .then(answers => {
     answers.command === 'writeMail' ? writeMail() :
       answers.command === 'logout' ? login() : viewMail();
 
   })
   .catch(error => {
-    console.log("TI SHO EBANYTI?");
     console.log(error);
   })
 }
 
 let viewMail = function() {
   reader.checkInbox();
+  chooseCommand();
 }
 
 let writeMail = function() {
   inquirer
   .prompt([
-    {
-      type: "input",
-      name: "to",
-      message: "To:",
-      validate: checkEmail
-    },
-    {
-      type: "input",
-      name: "subject",
-      message: "Subject:"
-    },
-    {
-      type: "input",
-      name: "text",
-      message: "Text:"
-    },
-    {
-      type: "input",
-      name: "attachmentPath",
-      message: "Attachment Path:"
-    },
+    utils.createInput("to", "To:", utils.checkEmail),
+    utils.createInput("subject", "Subject:"),
+    utils.createInput("text", "Text:"),
+    utils.createInput("attachmentPath", "Attachment path:")
   ])
   .then(answers => {
     console.log(answers.attachmentPath);
     mailer.createMail(answers.from, answers.to, answers.subject, answers.text, answers.attachmentPath);
     inquirer
     .prompt([
-      {
-        type: "confirm",
-        name: "confirm",
-        message: "Send?"
-    }])
+      utils.createConfirm("confirm", "Send?")
+    ])
     .then(answers => {
-      answers.confirm === true ? mailer.sendMail() : chooseCommand();
+      answers.confirm ? mailer.sendMail() : false;
+      chooseCommand();
     })
     .catch(error => {
-      console.log("TI SHO EBANYTI?");
       console.log(error);
     })
   })
   .catch(error => {
-    console.log("TI SHO EBANYTI?");
     console.log(error);
   })
-}
-
-let checkEmail = function(userName) {
-  const dummy = /\S+@\S+\.\S+/;
-  let check = dummy.test(userName) ? true : "Please enter a valid email adress.";
-  return check;
-}
-
-let checkPass = function(userPass) {
-  let check = userPass.length >= 8 ? true : "Password should be at least 8 symbols.";
-  return check;
 }
 
 login();
