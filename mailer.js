@@ -5,9 +5,9 @@ let inquirer = require('inquirer');
 
 function Mailer(){}
 
-Mailer.prototype.createTransport = function(user, pass, smtp) {
-  this.transport =  nodemailer.createTransport({
-    host: smtp,
+Mailer.prototype.createTransport = function(user, pass, service) {
+  this.transport = nodemailer.createTransport({
+    host: service,
     secure: false,
     auth: {user, pass}
   })
@@ -24,6 +24,7 @@ Mailer.prototype.createMail = function(from, to, subject, text, attachment = "")
     ] : undefined
   };
 }
+
 Mailer.prototype.sendMail = function() {
   this.transport.sendMail(this.mail, (err, info) => {
     if(err) {

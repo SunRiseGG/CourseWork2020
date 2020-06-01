@@ -1,9 +1,9 @@
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
-const utils = require('./utils.js');
 const htmlToText = require('html-to-text');
-
+let utils = require('./utils.js');
+utils = new utils();
 
 const SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
@@ -62,7 +62,6 @@ Reader.prototype.getNewToken = function (oAuth2Client) {
   });
 }
 
-
 Reader.prototype.getMail = function(msg){
   this.gmail.users.messages.get({
     'userId': 'me',
@@ -111,7 +110,5 @@ Reader.prototype.checkForSpecificMails = function(query){
         }
     });
 }
-
-
 
 module.exports = Reader;
