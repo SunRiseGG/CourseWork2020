@@ -1,5 +1,7 @@
 'use strict';
 
+const inquirer = require('inquirer');
+
 function Utils() {}
 
 Utils.prototype.parseMessageHeaders = function (headers) {
@@ -113,5 +115,23 @@ Utils.prototype.checkPass = function (userPass) {
     'Password should be at least 8 symbols.';
   return check;
 };
+
+Utils.prototype.selectFile = function(attachments, callback) {
+  inquirer.prompt([
+    this.createInput('attachment', 'Attachment Path:'),
+    {
+      type: 'confirm',
+      name: 'anotherPath',
+      message: 'Want to add another attachment?'
+    }
+  ])
+    .then(answers => {
+      attachments.push({
+        filename: answers.attachment.split('\\').pop(),
+        path: answers.attachment
+      })
+      answers.anotherPath ? this.selectFile(attachments, callback) : callback(attachments);
+    })
+}
 
 module.exports = Utils;
