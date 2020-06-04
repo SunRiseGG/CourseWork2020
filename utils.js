@@ -19,11 +19,11 @@ const SERVICES = [
 ];
 
 Utils.prototype.parseService = function (email) {
-  let index = email.indexOf('@');
-  let service = email.substring(index + 1);
-  let result = SERVICES.find(element => element.includes(service));
+  const index = email.indexOf('@');
+  const service = email.substring(index + 1);
+  const result = SERVICES.find(element => element.includes(service));
   return result;
-}
+};
 
 Utils.prototype.parseMessageHeaders = function (headers) {
   const result = {
@@ -139,7 +139,7 @@ Utils.prototype.checkPass = function (userPass) {
   return check;
 };
 
-Utils.prototype.selectFile = function(attachments, callback) {
+Utils.prototype.selectFile = function (attachments, callback) {
   inquirer.prompt([
     this.createInput('attachment', 'Attachment Path:'),
     {
@@ -152,25 +152,26 @@ Utils.prototype.selectFile = function(attachments, callback) {
       attachments.push({
         filename: answers.attachment.split('\\').pop(),
         path: answers.attachment
-      })
-      answers.anotherPath ? this.selectFile(attachments, callback) : callback(attachments);
-    })
-}
+      });
+      answers.anotherPath ? this.selectFile(attachments, callback) :
+        callback(attachments);
+    });
+};
 
 CryptoModule.prototype.createSalt = function () {
   this.salt = crypto.randomBytes(this.saltLength).toString('hex');
-}
+};
 
 CryptoModule.prototype.hashPassword = function (password) {
-  let hash = crypto.createHmac(this.hashingAlgo, this.salt);
+  const hash = crypto.createHmac(this.hashingAlgo, this.salt);
   hash.update(password);
   return hash.digest('hex');
-}
+};
 
-CryptoModule.prototype.verifyPassword = function (password, hashToCompare, salt) {
-  let hash = crypto.createHmac(this.hashingAlgo, salt);
+CryptoModule.prototype.verifyPassword = function (password, hashCompare, salt) {
+  const hash = crypto.createHmac(this.hashingAlgo, salt);
   hash.update(password);
-  return hash.digest('hex') === hashToCompare;
-}
+  return hash.digest('hex') === hashCompare;
+};
 
 module.exports = { Utils, CryptoModule };

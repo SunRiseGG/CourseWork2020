@@ -14,32 +14,38 @@ const databaseInterface = new DatabaseInterface();
 const getAllSaved = function () {
   const choices = [];
   utils.addChoice(choices, 'Login to another account', 'newUser');
-  let savedUsers = null;
-  new Promise((resolve, reject) => {
+  new Promise(resolve => {
     databaseInterface.getAllSaved(resolve);
   })
-  .then(savedUsers => {
-    let savedEmails = savedUsers.map(element => element.email);
-    inquirer
-    .prompt([
-      utils.createList('savedEmails', 'Choose your username:', [
-        ...savedEmails,
-        new inquirer.Separator(),
-        ...choices,
-        new inquirer.Separator()
-      ])
-    ])
-    .then(answers => {
-      let savedUser = savedUsers.find(element => element.email === answers.savedEmails);
-      !savedUser ? login({email: 'newUser', service: '', password: '', salt: ''}) : login(savedUser);
-    })
-    .catch(error => {
-      console.log(error);
+    .then(savedUsers => {
+      const savedEmails = savedUsers.map(element => element.email);
+      inquirer
+        .prompt([
+          utils.createList('savedEmails', 'Choose your username:', [
+            ...savedEmails,
+            new inquirer.Separator(),
+            ...choices,
+            new inquirer.Separator()
+          ])
+        ])
+        .then(answers => {
+          const savedUser = savedUsers.find(element => {
+            element.email === answers.savedEmails;
+          });
+          !savedUser ? login({
+            email: 'newUser',
+            service: '',
+            password: '',
+            salt: ''
+          }) : login(savedUser);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     });
-  });
 };
 
-const login = function ({email, service, password, salt}) {
+const login = function ({ email, service, password, salt }) {
   inquirer
     .prompt([
       utils.createInput(
@@ -59,24 +65,29 @@ const login = function ({email, service, password, salt}) {
       );
       cryptoModule.createSalt();
       const hashPassword = cryptoModule.hashPassword(answers.userPass);
-      if(answers.userName) {
+      if (answers.userName) {
         inquirer
           .prompt([
             utils.createConfirm('save', 'Save your user?')
           ])
           .then(saveClause => {
-            saveClause.save ? databaseInterface.saveUser(service, answers.userName, hashPassword, cryptoModule.salt) : false;
+            saveClause.save ? databaseInterface.saveUser(
+              service,
+              answers.userName,
+              hashPassword,
+              cryptoModule.salt
+            ) : false;
             chooseCommand(service !== 'smtp.gmail.com');
           })
           .catch(error => {
             console.log(error);
           });
       } else {
-        if(cryptoModule.verifyPassword(answers.userPass, password, salt)) {
+        if (cryptoModule.verifyPassword(answers.userPass, password, salt)) {
           chooseCommand(service !== 'smtp.gmail.com');
         } else {
-          console.log("Please enter the correct password!");
-          login({email, service, password, salt});
+          console.log('Please enter the correct password!');
+          login({ email, service, password, salt });
         }
       }
     })
@@ -98,7 +109,7 @@ const chooseCommand = function (service) {
     .then(answers => {
       answers.command === 'writeMail' ? writeMail() :
         answers.command === 'logout' ? getAllSaved() :
-        answers.command === 'exit' || viewMail();
+          answers.command === 'exit' || viewMail();
 
     })
     .catch(error => {
@@ -114,26 +125,26 @@ const writeMail = function () {
       utils.createInput('text', 'Text:')
     ])
     .then(answers => {
-      let callback = (attachments) => {
-          mailer.createMail(
-            answers.to,
-            answers.subject,
-            answers.text,
-            attachments.length ? attachments : undefined
-          );
-          inquirer
-            .prompt([
-              utils.createConfirm('confirm', 'Send?')
-            ])
-            .then(answers => {
-              answers.confirm ? mailer.sendMail() : false;
-              chooseCommand();
-            })
-            .catch(error => {
-              console.log(error);
-            });
-        }
-        utils.selectFile([], callback);
+      const callback = attachments => {
+        mailer.createMail(
+          answers.to,
+          answers.subject,
+          answers.text,
+          attachments.length ? attachments : undefined
+        );
+        inquirer
+          .prompt([
+            utils.createConfirm('confirm', 'Send?')
+          ])
+          .then(answers => {
+            answers.confirm ? mailer.sendMail() : false;
+            chooseCommand();
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      };
+      utils.selectFile([], callback);
     })
     .catch(error => {
       console.log(error);
@@ -145,18 +156,18 @@ const viewMail = function () {
   chooseCommand();
 };
 
-process.on('uncaughtException', (err, origin) => {
+process.on('uncaughtException', err => {
   console.log(err);
   databaseInterface.closeConnection();
 });
 
-process.on('exit', (code) => {
+process.on('exit', code => {
   console.log(`Shutting down with exitcode ${code}`);
   databaseInterface.closeConnection();
 });
 
 process.on('SIGINT', () => {
-  console.log(`Shutting down`);
+  console.log('Shutting down');
   databaseInterface.closeConnection();
 });
 
