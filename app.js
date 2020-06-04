@@ -118,12 +118,7 @@ const writeMail = function () {
               utils.createConfirm('confirm', 'Send?')
             ])
             .then(answers => {
-              new Promise((resolve, reject) => {
-                answers.confirm ? mailer.sendMail() : false;
-                resolve();
-              })
-                .then(result => chooseCommand())
-                .catch(err => console.log(err))
+              answers.confirm ? mailer.sendMail(chooseCommand) : false;
             })
             .catch(error => console.log(error))
           });
@@ -136,11 +131,7 @@ const writeMail = function () {
 };
 
 const viewMail = function () {
-  new Promise((resolve, reject) => {
-    reader.checkInbox();
-    resolve();
-  })
-    .then(result => chooseCommand());
+    reader.checkInbox(chooseCommand);
 };
 
 process.on('uncaughtException', (err, origin) => {

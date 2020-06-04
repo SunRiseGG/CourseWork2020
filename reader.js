@@ -83,7 +83,7 @@ Reader.prototype.getMail = function (msg) {
   });
 };
 
-Reader.prototype.checkInbox = function () {
+Reader.prototype.checkInbox = function (cb) {
   this.gmail.users.messages.list({
     userId: 'me',
     maxResults: 10
@@ -95,6 +95,7 @@ Reader.prototype.checkInbox = function () {
     } else {
       console.log(err);
     }
+    cb();
   }
   );
 };

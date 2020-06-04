@@ -26,11 +26,12 @@ Mailer.prototype.createMail = function (
   };
 };
 
-Mailer.prototype.sendMail = function () {
+Mailer.prototype.sendMail = function (cb) {
   this.transport.sendMail(this.mail, (err, info) => {
     if (err) {
       console.log(err);
     }
+    cb();
   });
 };
 
