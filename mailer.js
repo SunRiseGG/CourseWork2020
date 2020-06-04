@@ -16,20 +16,22 @@ Mailer.prototype.createMail = function (
   to,
   subject,
   text,
-  attachments = ''
+  attachments
 ) {
   this.mail = {
     to,
     subject,
     text,
-    attachments: attachments || undefined
+    attachments
   };
 };
 
 Mailer.prototype.sendMail = function () {
-  this.transport.sendMail(this.mail, (err, info) => {
+  this.transport.sendMail(this.mail, err => {
     if (err) {
       console.log(err);
+    } else {
+      console.log('Mail sent.');
     }
   });
 };

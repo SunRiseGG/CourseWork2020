@@ -12,26 +12,27 @@ function DatabaseInterface() {
   });
 }
 
-DatabaseInterface.prototype.saveUser = function(service, {userName, userPass}) {
+DatabaseInterface.prototype.saveUser = function (
+  service,
+  userName,
+  userPass,
+  userSalt) {
   this.pg.select('Users')
-    .fields(['email', 'password', 'service'])
-    .insert(userName, userPass, service)
-    .then(function() {
+    .fields(['email', 'password', 'service', 'salt'])
+    .insert(userName, userPass, service, userSalt)
+    .then(() => {
     });
-}
+};
 
-DatabaseInterface.prototype.getAllSaved = function(callback) {
+DatabaseInterface.prototype.getAllSaved = function (callback) {
   this.pg.select('Users')
-    .fields(['email', 'service'])
+    .fields(['email', 'service', 'password', 'salt'])
     .order('email')
-    .then(rows => {
-      let result = rows.flatMap(element => Object.values(element));
-      callback(rows);
-    });
-}
+    .then(callback);
+};
 
-DatabaseInterface.prototype.closeConnection = function() {
+DatabaseInterface.prototype.closeConnection = function () {
   this.pg.close();
-}
+};
 
 module.exports = DatabaseInterface;

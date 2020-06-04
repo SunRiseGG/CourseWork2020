@@ -119,13 +119,14 @@ class Cursor {
     const fields = columns.join(', ');
 
     if (insertValues) {
-      let sql = `
+      const sql = `
         INSERT INTO ${table} (${fields})
-        VALUES ($1, $2, $3)
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT (${columns[0]})
-        DO UPDATE SET ${columns[1]} = $2, ${columns[2]} = $3
+        DO UPDATE SET ${columns[1]} = $2, ${columns[2]} = $3, ${columns[3]} = $4
       `;
       this.database.query(sql, insertValues, (err, res) => {
+        if (callback) callback(err, res);
       });
     } else {
       let sql = `SELECT ${fields} FROM ${table}`;
@@ -152,7 +153,7 @@ class Cursor {
           callback(rows);
         }
       });
-    };
+    }
     return this;
   }
 }
@@ -169,7 +170,6 @@ class Database {
       callback = values;
       values = [];
     }
-    const startTime = new Date().getTime();
     this.pool.query(sql, values, (err, res) => {
       if (callback) callback(err, res);
     });

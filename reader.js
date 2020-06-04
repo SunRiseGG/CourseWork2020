@@ -4,7 +4,7 @@ const fs = require('fs');
 const readline = require('readline');
 const { google } = require('googleapis');
 const htmlToText = require('html-to-text');
-const Utils = require('./utils.js');
+const { Utils } = require('./utils.js');
 const utils = new Utils();
 
 const SCOPES = [
@@ -41,8 +41,8 @@ Reader.prototype.authorize = function (credentials) {
 
 Reader.prototype.getNewToken = function (oAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'online',
-    scope: SCOPES,
+    access_type: 'offline',
+    scope: SCOPES
   });
   console.log('Authorize this app by visiting this url:', authUrl);
   const rl = readline.createInterface({
