@@ -167,8 +167,8 @@ CryptoModule.prototype.hashPassword = function (password) {
   return hash.digest('hex');
 }
 
-CryptoModule.prototype.verifyPassword = function (password, hashToCompare) {
-  let hash = crypto.createHmac(this.hashingAlgo, this.salt);
+CryptoModule.prototype.verifyPassword = function (password, hashToCompare, salt) {
+  let hash = crypto.createHmac(this.hashingAlgo, salt);
   hash.update(password);
   let result = hash.digest('hex');
   console.log(result, hashToCompare);

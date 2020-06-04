@@ -8,8 +8,7 @@ const DatabaseInterface = require('./database.js');
 const mailer = new Mailer();
 const reader = new Reader();
 const utils = new Utils();
-const cryptoModule = new CryptoModule(16, 'sha512')
-cryptoModule.createSalt();
+const cryptoModule = new CryptoModule(16, 'sha512');
 const databaseInterface = new DatabaseInterface();
 
 const getAllSaved = function () {
@@ -32,7 +31,7 @@ const getAllSaved = function () {
     ])
     .then(answers => {
       let savedUser = savedUsers.find(element => element.email === answers.savedEmails);
-      !savedUser ? login({email: 'newUser', service: '', password: ''}) : login(savedUser);
+      !savedUser ? login({email: 'newUser', service: '', password: '', salt: ''}) : login(savedUser);
     })
     .catch(error => {
       console.log(error);
@@ -40,7 +39,7 @@ const getAllSaved = function () {
   });
 };
 
-const login = function ({email, service, password}) {
+const login = function ({email, service, password, salt}) {
   inquirer
     .prompt([
       utils.createInput(
@@ -58,25 +57,26 @@ const login = function ({email, service, password}) {
         answers.userPass,
         service
       );
-      const hashPassword = cryptoModule.hashPassword(answers.userPass)
+      cryptoModule.createSalt();
+      const hashPassword = cryptoModule.hashPassword(answers.userPass);
       if(answers.userName) {
         inquirer
           .prompt([
             utils.createConfirm('save', 'Save your user?')
           ])
           .then(saveClause => {
-            saveClause.save ? databaseInterface.saveUser(service, answers.userName, hashPassword) : false;
+            saveClause.save ? databaseInterface.saveUser(service, answers.userName, hashPassword, cryptoModule.salt) : false;
             chooseCommand(service !== 'smtp.gmail.com');
           })
           .catch(error => {
             console.log(error);
           });
       } else {
-        if(cryptoModule.verifyPassword(answers.userPass, password)) {
+        if(cryptoModule.verifyPassword(answers.userPass, password, salt)) {
           chooseCommand(service !== 'smtp.gmail.com');
         } else {
           console.log("Please enter the correct password!");
-          login({email, service, password});
+          login({email, service, password, salt});
         }
       }
     })
