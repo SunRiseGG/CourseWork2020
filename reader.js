@@ -35,7 +35,6 @@ Reader.prototype.authorize = function (credentials) {
   fs.readFile(TOKEN_PATH, (err, token) => {
     if (err) return this.getNewToken(oAuth2Client);
     oAuth2Client.setCredentials(JSON.parse(token));
-    oAuth2Client.setCredentials({refresh_token: TOKEN_PATH});
     this.fillAuth(oAuth2Client);
   });
 };
@@ -43,8 +42,7 @@ Reader.prototype.authorize = function (credentials) {
 Reader.prototype.getNewToken = function (oAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
-    scope: SCOPES,
-    approval_prompt: 'force'
+    scope: SCOPES
   });
   console.log('Authorize this app by visiting this url:', authUrl);
   const rl = readline.createInterface({

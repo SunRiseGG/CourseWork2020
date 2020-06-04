@@ -22,7 +22,7 @@ DatabaseInterface.prototype.saveUser = function(service, {userName, userPass}) {
 
 DatabaseInterface.prototype.getAllSaved = function(callback) {
   this.pg.select('Users')
-    .fields(['email', 'service'])
+    .fields(['email', 'service', 'password'])
     .order('email')
     .then(rows => {
       let result = rows.flatMap(element => Object.values(element));

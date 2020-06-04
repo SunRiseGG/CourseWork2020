@@ -3,11 +3,12 @@
 const inquirer = require('inquirer');
 const Mailer = require('./mailer.js');
 const Reader = require('./reader.js');
-const Utils = require('./utils.js');
+const { Utils, CryptoModule } = require('./utils.js');
 const DatabaseInterface = require('./database.js');
 const mailer = new Mailer();
 const reader = new Reader();
 const utils = new Utils();
+const cryptoModule = new CryptoModule('16', 'sha512')
 const databaseInterface = new DatabaseInterface();
 
 const getAllSaved = function () {
@@ -30,7 +31,7 @@ const getAllSaved = function () {
     ])
     .then(answers => {
       let savedUser = savedUsers.find(element => element.email === answers.savedEmails);
-      !savedUser ? login({email: 'newUser', service: ''}) : login(savedUser);
+      !savedUser ? login({email: 'newUser', service: '', password: ''}) : login(savedUser);
     })
     .catch(error => {
       console.log(error);
@@ -38,7 +39,7 @@ const getAllSaved = function () {
   });
 };
 
-const login = function ({email, service}) {
+const login = function ({email, service, password}) {
   inquirer
     .prompt([
       utils.createInput(
@@ -56,20 +57,26 @@ const login = function ({email, service}) {
         answers.userPass,
         service
       );
+      const hashPassword = cryptoModule.hashPassword(answers.userPass)
       if(answers.userName) {
         inquirer
           .prompt([
             utils.createConfirm('save', 'Save your user?')
           ])
           .then(saveClause => {
-            saveClause.save ? databaseInterface.saveUser(service, answers) : false;
+            saveClause.save ? databaseInterface.saveUser(service, answers.userName, hashPassword) : false;
             chooseCommand(service !== 'smtp.gmail.com');
           })
           .catch(error => {
             console.log(error);
           });
       } else {
-        chooseCommand(service !== 'smtp.gmail.com');
+        if(cryptoModule.verifyPassword(answers.userPass, password)) {
+          chooseCommand(service !== 'smtp.gmail.com');
+        } else {
+          console.log("Please enter the correct password!");
+          login({email, service, password});
+        }
       }
     })
     .catch(error => {

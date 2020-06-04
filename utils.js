@@ -1,6 +1,12 @@
 'use strict';
 
 const inquirer = require('inquirer');
+const crypto = require('crypto');
+
+function CryptoModule(saltLength, hashingAlgo) {
+  this.saltLength = saltLength;
+  this.hashingAlgo = hashingAlgo;
+}
 
 function Utils() {}
 
@@ -151,4 +157,20 @@ Utils.prototype.selectFile = function(attachments, callback) {
     })
 }
 
-module.exports = Utils;
+CryptoModule.prototype.createSalt = function () {
+  this.salt = crypto.randomBytes(this.saltLength).toString('hex');
+}
+
+CryptoModule.prototype.hashPassword = function (password) {
+  let hash = crypto.createHmac(this.hashingAlgo, this.salt);
+  hash.update(password);
+  return hash.digest('hex');
+}
+
+CryptoModule.prototype.verifyPassword = function (password, hashToCompare) {
+  let hash = crypto.createHmac(this.hashingAlgo, this.salt);
+  hash.update(password);
+  return hash.digest('hex') === hashToCompare;
+}
+
+module.exports = { Utils, CryptoModule };
