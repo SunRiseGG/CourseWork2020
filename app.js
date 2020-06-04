@@ -111,19 +111,22 @@ const writeMail = function () {
             answers.to,
             answers.subject,
             answers.text,
-            attachments
+            attachments.lentgh ? attachments : undefined
           );
           inquirer
             .prompt([
               utils.createConfirm('confirm', 'Send?')
             ])
             .then(answers => {
-              answers.confirm ? mailer.sendMail() : false;
-              chooseCommand();
+              new Promise((resolve, reject) => {
+                answers.confirm ? mailer.sendMail() : false;
+                resolve();
+              })
+                .then(result => chooseCommand())
+                .catch(err => console.log(err))
             })
-            .catch(error => {
-              console.log(error);
-            });
+            .catch(error => console.log(error))
+          });
         }
         utils.selectFile([], callback);
     })
@@ -133,8 +136,11 @@ const writeMail = function () {
 };
 
 const viewMail = function () {
-  reader.checkInbox();
-  chooseCommand();
+  new Promise((resolve, reject) => {
+    reader.checkInbox();
+    resolve();
+  })
+    .then(result => chooseCommand());
 };
 
 process.on('uncaughtException', (err, origin) => {

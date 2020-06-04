@@ -16,13 +16,13 @@ Mailer.prototype.createMail = function (
   to,
   subject,
   text,
-  attachments = ''
+  attachments
 ) {
   this.mail = {
     to,
     subject,
     text,
-    attachments: attachments || undefined
+    attachments: attachments
   };
 };
 
