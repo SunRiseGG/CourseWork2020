@@ -64,13 +64,14 @@ Reader.prototype.getNewToken = function (oAuth2Client) {
   });
 };
 
-Reader.prototype.getMail = function (msg) {
+Reader.prototype.getMail = function (result, msg) {
   this.gmail.users.messages.get({
     userId: 'me',
     id: msg.id
   }, (err, res) => {
-    let result = utils.parseMessageHeaders(res.data.payload.headers);
+    let result = null;
     if (!err) {
+      result = utils.parseMessageHeaders(res.data.payload.headers);
       const text = htmlToText.fromString(
         utils.parseMessageBody(res.data.payload),
         {
@@ -79,25 +80,25 @@ Reader.prototype.getMail = function (msg) {
           preserveNewlines: true
       });
       result['Text'] = text;
-      this.lastEmails.push(result);
+      result.push(result);
     }
   });
 };
 
 Reader.prototype.checkInbox = function (cb) {
-  this.lastEmails = [];
+  let result = [];
   this.gmail.users.messages.list({
     userId: 'me',
     maxResults: 10
   }, (err, res) => {
     if (!err) {
       for (const msg of res.data.messages) {
-        this.getMail(msg);
+        this.getMail(result, msg);
       }
     } else {
       console.log(err);
     }
-    cb(this.lastEmails);
+    cb(result);
   }
   );
 };

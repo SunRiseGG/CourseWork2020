@@ -132,8 +132,11 @@ const writeMail = function () {
 
 const viewMail = function () {
     reader.checkInbox(result => {
-      console.log(result);
-      chooseCommand();
+      new Promise((resolve, reject) => {
+        console.log(result);
+        resolve();
+      })
+        .then(() => chooseCommand());
     });
 };
 
