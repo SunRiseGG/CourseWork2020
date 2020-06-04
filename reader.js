@@ -68,17 +68,17 @@ Reader.prototype.getMail = function (msg) {
     userId: 'me',
     id: msg.id
   }, (err, res) => {
+    let result = utils.parseMessageHeaders(res.data.payload.headers);
     if (!err) {
-      const result = utils.parseMessageHeaders(res.data.payload.headers);
       const text = htmlToText.fromString(
         utils.parseMessageBody(res.data.payload),
         {
           ignoreImage: true,
           ignoreHref: true,
           preserveNewlines: true
-        });
+      });
       result['Text'] = text;
-      console.log(result);
+      return result;
     }
   });
 };
@@ -88,18 +88,15 @@ Reader.prototype.checkInbox = function (cb) {
     userId: 'me',
     maxResults: 10
   }, (err, res) => {
+    let result = [];
     if (!err) {
-      new Promise((resolve, reject) => {
-        for (const msg of res.data.messages) {
-          this.getMail(msg);
-        }
-        resolve();
-      })
-        .then(() => cb());
+      for (const msg of res.data.messages) {
+        result.push(this.getMail(msg));
+      }
     } else {
       console.log(err);
-      cb();
     }
+    cb(result);
   }
   );
 };

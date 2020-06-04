@@ -131,7 +131,10 @@ const writeMail = function () {
 };
 
 const viewMail = function () {
-    reader.checkInbox(chooseCommand);
+    reader.checkInbox(result => {
+      console.log(result);
+      chooseCommand();
+    });
 };
 
 process.on('uncaughtException', (err, origin) => {
