@@ -33,6 +33,11 @@ Reader.prototype.authorize = function (credentials) {
   const oAuth2Client = new google.auth.OAuth2(
     client_id, client_secret, redirect_uris[0]);
   fs.readFile(TOKEN_PATH, (err, token) => {
+    oAuth2Client.on('tokens', (tokens) => {
+      if(tokens.refresh_token) {
+        console.log(tokens.refresh_token);
+      }
+    });
     if (err) return this.getNewToken(oAuth2Client);
     oAuth2Client.setCredentials(JSON.parse(token));
     this.fillAuth(oAuth2Client);
