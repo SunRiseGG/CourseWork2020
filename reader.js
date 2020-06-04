@@ -41,8 +41,9 @@ Reader.prototype.authorize = function (credentials) {
 
 Reader.prototype.getNewToken = function (oAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'online',
+    access_type: 'offline',
     scope: SCOPES,
+    approval_prompt: 'force'
   });
   console.log('Authorize this app by visiting this url:', authUrl);
   const rl = readline.createInterface({
