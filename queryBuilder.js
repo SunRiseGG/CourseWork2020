@@ -108,7 +108,7 @@ class Cursor {
     return this;
   }
 
-  insert(values) {
+  insert(...values) {
     this.insertValues = values;
     return this;
   }
@@ -121,7 +121,13 @@ class Cursor {
 
     console.log(callback);
     if (insertValues) {
-      let sql = `INSERT INTO ${table} (${fields}) VALUES ($1, $2, $3)`;
+      let sql = `
+        INSERT INTO ${table} (${fields})
+        VALUES ($1, $2, $3)
+        ON CONFLICT (${columns[0]})
+        DO UPDATE SET ${columns[1]} = $2, ${columns[2]} = $3
+      `;
+      //INSERT INTO Users (email, password, service) VALUES ('kotenkobogdan13@gmail.com', 'sdfdsgdsgfdg', 'smtp') ON CONFLICT (email) DO UPDATE SET password = 'sdfdsgdsgfdg', service = 'smtp';
       this.database.query(sql, insertValues, (err, res) => {
         console.log(insertValues);
       });
