@@ -89,13 +89,17 @@ Reader.prototype.checkInbox = function (cb) {
     maxResults: 10
   }, (err, res) => {
     if (!err) {
-      for (const msg of res.data.messages) {
-        this.getMail(msg);
-      }
+      new Promise((resolve, reject) => {
+        for (const msg of res.data.messages) {
+          this.getMail(msg);
+        }
+        resolve();
+      })
+        .then(() => cb());
     } else {
       console.log(err);
+      cb();
     }
-    cb();
   }
   );
 };
