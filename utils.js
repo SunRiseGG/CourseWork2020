@@ -4,6 +4,21 @@ const inquirer = require('inquirer');
 
 function Utils() {}
 
+const SERVICES = [
+  'smtp.gmail.com',
+  'smtp.live.com',
+  'smtp.office365.com',
+  'smtp.mail.yahoo.com',
+  'smtp.comcast.com'
+];
+
+Utils.prototype.parseService = function (email) {
+  let index = email.indexOf('@');
+  let service = email.substring(index + 1);
+  let result = SERVICES.find(element => element.includes(service));
+  return result;
+}
+
 Utils.prototype.parseMessageHeaders = function (headers) {
   const result = {
     'From': '',
@@ -47,12 +62,14 @@ Utils.prototype.parseMessageBody = function (message) {
 Utils.prototype.createInput = function (
   inputName,
   inputMessage,
-  inputValidate) {
+  inputValidate,
+  inputWhen) {
   const input = {
     type: 'input',
     name: inputName,
     message: inputMessage,
-    validate: inputValidate
+    validate: inputValidate,
+    when: inputWhen
   };
   return input;
 };
