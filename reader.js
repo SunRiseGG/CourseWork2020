@@ -17,6 +17,7 @@ const TOKEN_PATH = 'token.json';
 
 function Reader() {
   this.readCredentials();
+  this.lastEmails = [];
 }
 
 Reader.prototype.fillAuth = function (auth) {
@@ -78,30 +79,31 @@ Reader.prototype.getMail = function (msg) {
           preserveNewlines: true
       });
       result['Text'] = text;
-      return result;
+      this.lastEmails.push(result);
     }
   });
 };
 
 Reader.prototype.checkInbox = function (cb) {
+  this.lastEmails = [];
   this.gmail.users.messages.list({
     userId: 'me',
     maxResults: 10
   }, (err, res) => {
-    let result = [];
     if (!err) {
       for (const msg of res.data.messages) {
-        result.push(this.getMail(msg));
+        this.getMail(msg);
       }
     } else {
       console.log(err);
     }
-    cb(result);
+    cb(this.lastEmails);
   }
   );
 };
 
-Reader.prototype.checkForSpecificMails = function (query) {
+Reader.prototype.checkForSpecificMails = function (query, cb) {
+  this.lastEmails = [];
   this.gmail.users.messages.list({
     userId: 'me',
     q: query
@@ -112,6 +114,7 @@ Reader.prototype.checkForSpecificMails = function (query) {
     } else {
       console.log(err);
     }
+    cb(this.lastEmails);
   });
 };
 
