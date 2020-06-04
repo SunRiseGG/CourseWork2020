@@ -111,7 +111,7 @@ const writeMail = function () {
             answers.to,
             answers.subject,
             answers.text,
-            attachments
+            attachments.length ? attachments : undefined
           );
           inquirer
             .prompt([
