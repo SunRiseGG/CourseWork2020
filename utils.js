@@ -15,7 +15,6 @@ const SERVICES = [
 Utils.prototype.parseService = function (email) {
   let index = email.indexOf('@');
   let service = email.substring(index + 1);
-  console.log(service);
   let result = SERVICES.find(element => element.includes(service));
   return result;
 }

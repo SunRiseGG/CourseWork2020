@@ -13,9 +13,6 @@ function DatabaseInterface() {
 }
 
 DatabaseInterface.prototype.saveUser = function(service, {userName, userPass}) {
-  console.log(service);
-  console.log(userName);
-  console.log(userPass);
   this.pg.select('Users')
     .fields(['email', 'password', 'service'])
     .insert(userName, userPass, service)

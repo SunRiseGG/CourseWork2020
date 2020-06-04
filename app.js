@@ -51,15 +51,12 @@ const login = function ({email, service}) {
     ])
     .then(answers => {
       service = service || utils.parseService(answers.userName);
-      console.log(answers.userName);
       mailer.createTransport(
         answers.userName || email,
         answers.userPass,
         service
       );
-      console.log(mailer.transport);
       if(answers.userName) {
-        console.log('HUUUUUUUUUUUUUUUUUUUUUUYA');
         inquirer
           .prompt([
             utils.createConfirm('save', 'Save your user?')
@@ -85,13 +82,15 @@ const chooseCommand = function (service) {
   utils.addChoice(choices, 'Compose a letter', 'writeMail');
   utils.addChoice(choices, 'View mail', 'viewMail', service);
   utils.addChoice(choices, 'Change user', 'logout');
+  utils.addChoice(choices, 'Exit program', 'exit');
   inquirer
     .prompt([
       utils.createList('command', 'Command:', choices)
     ])
     .then(answers => {
       answers.command === 'writeMail' ? writeMail() :
-        answers.command === 'logout' ? getAllSaved() : viewMail();
+        answers.command === 'logout' ? getAllSaved() :
+        answers.command === 'exit' || viewMail();
 
     })
     .catch(error => {
@@ -137,5 +136,21 @@ const viewMail = function () {
   reader.checkInbox();
   chooseCommand();
 };
+
+process.on('uncaughtException', (err, origin) => {
+  console.log(err);
+  databaseInterface.closeConnection();
+});
+
+process.on('exit', (code) => {
+  console.log(`Shutting down with exitcode ${code}`);
+  databaseInterface.closeConnection();
+});
+
+process.on('SIGINT', () => {
+  console.log(`Shutting down`);
+  databaseInterface.closeConnection();
+});
+
 
 getAllSaved();
