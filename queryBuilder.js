@@ -121,9 +121,9 @@ class Cursor {
     if (insertValues) {
       let sql = `
         INSERT INTO ${table} (${fields})
-        VALUES ($1, $2, $3)
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT (${columns[0]})
-        DO UPDATE SET ${columns[1]} = $2, ${columns[2]} = $3
+        DO UPDATE SET ${columns[1]} = $2, ${columns[2]} = $3, ${columns[3]} = $4
       `;
       this.database.query(sql, insertValues, (err, res) => {
       });
