@@ -8,7 +8,8 @@ const DatabaseInterface = require('./database.js');
 const mailer = new Mailer();
 const reader = new Reader();
 const utils = new Utils();
-const cryptoModule = new CryptoModule('16', 'sha512')
+const cryptoModule = new CryptoModule(16, 'sha512')
+cryptoModule.createSalt();
 const databaseInterface = new DatabaseInterface();
 
 const getAllSaved = function () {

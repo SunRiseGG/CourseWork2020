@@ -4,7 +4,7 @@ const fs = require('fs');
 const readline = require('readline');
 const { google } = require('googleapis');
 const htmlToText = require('html-to-text');
-const Utils = require('./utils.js');
+const { Utils } = require('./utils.js');
 const utils = new Utils();
 
 const SCOPES = [
