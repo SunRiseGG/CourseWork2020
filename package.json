@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/SunRiseGG/CourseWork2020#readme",
   "dependencies": {
+    "googleapis": "^39.2.0",
+    "html-to-text": "^5.1.1",
     "inquirer": "^7.1.0",
-    "nodemailer": "^6.4.6"
+    "nodemailer": "^6.4.6",
+    "pg": "^8.2.1"
   }
 }
