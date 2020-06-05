@@ -170,9 +170,7 @@ CryptoModule.prototype.hashPassword = function (password) {
 CryptoModule.prototype.verifyPassword = function (password, hashToCompare, salt) {
   let hash = crypto.createHmac(this.hashingAlgo, salt);
   hash.update(password);
-  let result = hash.digest('hex');
-  console.log(result, hashToCompare);
-  return result === hashToCompare;
+  return hash.digest('hex') === hashToCompare;
 }
 
 module.exports = { Utils, CryptoModule };
