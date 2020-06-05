@@ -30,7 +30,7 @@ const getAllSaved = function () {
         ])
         .then(answers => {
           const savedUser = savedUsers.find(element => {
-            element.email === answers.savedEmails;
+            return element.email === answers.savedEmails;
           });
           !savedUser ? login({
             email: 'newUser',
